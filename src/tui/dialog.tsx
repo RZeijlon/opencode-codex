@@ -27,17 +27,19 @@ export function showAccounts(api: TuiPluginApi): void {
           const status: string[] = [];
           const plan = quota.plan(account);
           if (plan) status.push(`(${plan})`);
-          const window5h = account.usage?.windows.find(
-            (w) => w.windowMinutes <= 600,
-          );
-          if (window5h) {
-            const left = quota.left(window5h.usedPercent);
-            if (left != null) status.push(`5h ${Math.round(left)}%`);
+          for (const window of account.usage?.windows ?? []) {
+            const left = quota.left(window.usedPercent);
+            if (left == null) continue;
+            const windowLabel =
+              window.windowMinutes >= 1440
+                ? `${Math.round(window.windowMinutes / 1440)}d`
+                : quota.label(window.windowMinutes);
+            status.push(`${windowLabel} ${Math.round(left)}%`);
           }
           return {
             title: account.label || account.email || account.id,
             value: account.id,
-            description: status.join(' · ') || undefined,
+            description: status.join(' ') || undefined,
           };
         })}
         onSelect={async (option) => {
