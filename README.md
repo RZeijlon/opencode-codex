@@ -68,7 +68,8 @@ Under the hood the plugin keeps a `openai/<email>` entry in `auth.json` per
 connected account and keeps the canonical `openai` key as a compatibility
 mirror — so OpenCode's provider system sees a normal OAuth credential while the
 plugin reads the account pool from OpenCode's standard auth store. Account
-switching inside an open TUI process is kept in memory and is not persisted.
+switching updates the active mirror so the request process uses the selected
+login.
 
 ## Quota display
 
@@ -93,8 +94,8 @@ Usage data is fetched in memory from `chatgpt.com/backend-api/wham/usage`:
 |-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `$XDG_DATA_HOME/opencode/auth.json`           | OpenCode's credential file and the source of truth for Codex OAuth tokens. One entry per account at `openai/<email>` plus the compatibility mirror at `openai`.         |
 
-Quota, temporary rate-limit state, and the TUI account selection are process
-memory only. They are refreshed again after restarting OpenCode.
+Quota and temporary rate-limit state are process memory only. The active account
+selection is persisted in `auth.json` and picked up by subsequent requests.
 
 ## Troubleshooting
 

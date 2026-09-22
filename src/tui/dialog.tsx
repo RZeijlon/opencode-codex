@@ -43,6 +43,7 @@ export function showAccounts(api: TuiPluginApi): void {
         onSelect={async (option) => {
           if (typeof option.value !== 'string') return;
           if (option.value !== activeId) {
+            await accounts.activate(option.value);
             selection.select(option.value);
             void activeNow();
           }

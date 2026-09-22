@@ -312,6 +312,8 @@ export function create(): typeof fetch {
     let fresh: Account | undefined;
     let lastError: unknown;
 
+    // The picker runs in the TUI process; read its persisted choice before routing.
+    await accounts.reload();
     for (let attempt = 1; attempt <= attempts; attempt++) {
       const excluded = timeoutExcluded(Date.now(), requestTimedOutAccounts);
       const account = selection.pick(accounts.snapshot(), { exclude: excluded });
