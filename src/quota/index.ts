@@ -1,4 +1,5 @@
 import type { Account } from '../accounts/index.js';
+import { planType } from '../oauth/jwt.js';
 
 /**
  * Build a progress bar split into filled/empty halves. The caller renders
@@ -66,12 +67,15 @@ export function aggregate(
     }));
 }
 
-/** Friendly plan name. Returns undefined when no usage has been fetched. */
+/** Friendly plan name, available from the saved token before usage loads. */
 export function plan(account: Account | undefined): string | undefined {
-  const raw = account?.usage?.planType;
+  const raw = account?.usage?.planType ??
+    (account?.access ? planType(account.access) : undefined);
   if (!raw) return undefined;
   const lower = raw.toLowerCase();
-  if (lower.includes('pro')) return 'Pro';
-  if (lower.includes('plus')) return 'Plus';
+  if (lower === 'pro') return 'Personal Pro';
+  if (lower === 'plus') return 'Personal Plus';
+  if (lower === 'team' || lower === 'business') return 'Business Standard';
+  if (lower === 'self_serve_business_prolite') return 'Business ProLite';
   return raw;
 }

@@ -2,10 +2,12 @@ import type { TokenResponse } from './types.js';
 
 interface Claims {
   email?: string;
+  chatgpt_plan_type?: string;
   chatgpt_account_id?: string;
   organizations?: Array<{ id: string }>;
   'https://api.openai.com/auth'?: {
     chatgpt_account_id?: string;
+    chatgpt_plan_type?: string;
     user_email?: string;
   };
   'https://api.openai.com/profile'?: {
@@ -22,6 +24,14 @@ function parse(token: string | undefined): Claims | undefined {
   } catch {
     return undefined;
   }
+}
+
+export function planType(accessToken: string): string | undefined {
+  const claims = parse(accessToken);
+  return (
+    claims?.['https://api.openai.com/auth']?.chatgpt_plan_type ??
+    claims?.chatgpt_plan_type
+  );
 }
 
 function fromClaims(c: Claims | undefined): { id?: string; email?: string } {

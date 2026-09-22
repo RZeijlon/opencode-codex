@@ -26,7 +26,6 @@ export function showAccounts(api: TuiPluginApi): void {
         options={store.accounts.map((account) => {
           const status: string[] = [];
           const plan = quota.plan(account);
-          if (plan) status.push(`(${plan})`);
           const window5h = account.usage?.windows.find(
             (w) => w.windowMinutes <= 600,
           );
@@ -35,7 +34,9 @@ export function showAccounts(api: TuiPluginApi): void {
             if (left != null) status.push(`5h ${Math.round(left)}%`);
           }
           return {
-            title: account.label || account.email || account.id,
+            title: `${account.email || account.label || 'Unknown email'} · ${
+              plan || 'Plan unknown'
+            }`,
             value: account.id,
             description: status.join(' · ') || undefined,
           };
