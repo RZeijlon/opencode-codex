@@ -75,7 +75,7 @@ export async function fetch(account: Account): Promise<Usage | undefined> {
     const response = await globalThis.fetch(CODEX_USAGE_ENDPOINT, {
       headers: {
         authorization: `Bearer ${account.access}`,
-        'ChatGPT-Account-Id': account.id,
+        'ChatGPT-Account-Id': account.accountId ?? account.id,
         'User-Agent': 'opencode-codex/0.1',
         accept: 'application/json',
       },

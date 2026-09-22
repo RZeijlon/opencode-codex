@@ -64,11 +64,13 @@ account. Repeat for additional accounts.
 | Switch | `/accounts` in the TUI         |
 | Remove | `opencode auth logout`         |
 
-Under the hood the plugin keeps a `openai/<email>` entry in `auth.json` per
-connected account and keeps the canonical `openai` key as a compatibility
+Under the hood the plugin keeps a `openai/<login-id>` entry in `auth.json` per
+connected login and keeps the canonical `openai` key as a compatibility
 mirror — so OpenCode's provider system sees a normal OAuth credential while the
-plugin reads the account pool from OpenCode's standard auth store. Account
-switching inside an open TUI process is kept in memory and is not persisted.
+plugin reads the account pool from OpenCode's standard auth store. The login ID
+combines the ChatGPT account ID with the user's token subject when available,
+so people sharing a Business workspace remain separate. Account switching
+inside an open TUI process is kept in memory and is not persisted.
 
 ## Quota display
 
@@ -91,7 +93,7 @@ Usage data is fetched in memory from `chatgpt.com/backend-api/wham/usage`:
 
 | Path                                          | Purpose                                                                                                                                                                 |
 |-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `$XDG_DATA_HOME/opencode/auth.json`           | OpenCode's credential file and the source of truth for Codex OAuth tokens. One entry per account at `openai/<email>` plus the compatibility mirror at `openai`.         |
+| `$XDG_DATA_HOME/opencode/auth.json`           | OpenCode's credential file and the source of truth for Codex OAuth tokens. One entry per login at `openai/<login-id>` plus the compatibility mirror at `openai`.       |
 
 Quota, temporary rate-limit state, and the TUI account selection are process
 memory only. They are refreshed again after restarting OpenCode.

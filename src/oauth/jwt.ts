@@ -1,6 +1,7 @@
 import type { TokenResponse } from './types.js';
 
 interface Claims {
+  sub?: string;
   email?: string;
   chatgpt_account_id?: string;
   organizations?: Array<{ id: string }>;
@@ -37,14 +38,25 @@ function fromClaims(c: Claims | undefined): { id?: string; email?: string } {
   return { id, email };
 }
 
-export function identify(tokens: TokenResponse): {
+export function identify(
+  tokens: Pick<TokenResponse, 'access_token' | 'id_token'>,
+): {
   id?: string;
   email?: string;
+  subject?: string;
 } {
-  const fromId = fromClaims(parse(tokens.id_token));
-  const fromAccess = fromClaims(parse(tokens.access_token));
+  const idClaims = parse(tokens.id_token);
+  const accessClaims = parse(tokens.access_token);
+  const fromId = fromClaims(idClaims);
+  const fromAccess = fromClaims(accessClaims);
   return {
     id: fromId.id ?? fromAccess.id,
     email: fromId.email ?? fromAccess.email,
+    subject: accessClaims?.sub ?? idClaims?.sub,
   };
+}
+
+/** Keep the workspace ID for requests, and the user ID for stored logins. */
+export function loginId(accountId: string, subject?: string): string {
+  return subject ? `${accountId}:${subject}` : accountId;
 }

@@ -49,7 +49,7 @@ function buildHeaders(source: Headers, account: Account): Headers {
   const headers = new Headers(source);
   headers.delete('authorization');
   headers.set('authorization', `Bearer ${account.access}`);
-  headers.set('ChatGPT-Account-Id', account.id);
+  headers.set('ChatGPT-Account-Id', account.accountId ?? account.id);
   return headers;
 }
 

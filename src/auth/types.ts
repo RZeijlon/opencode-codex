@@ -4,6 +4,7 @@ export interface OauthEntry {
   access: string;
   expires: number;
   accountId?: string;
+  email?: string;
   enterpriseUrl?: string;
 }
 

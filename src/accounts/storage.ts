@@ -3,6 +3,7 @@ import { PROVIDER_ID } from '../config.js';
 import * as authFile from '../auth/file.js';
 import { isPerAccountKey, keyFor, labelFromKey } from '../auth/keys.js';
 import type { Entry, OauthEntry } from '../auth/types.js';
+import { identify, loginId } from '../oauth/jwt.js';
 import type { Account, Store } from './types.js';
 
 const EMPTY: Store = { version: 1, accounts: [] };
@@ -16,18 +17,26 @@ export function file(): string {
 }
 
 function idFor(entry: OauthEntry): string {
-  return (
+  const identity = identify({ access_token: entry.access });
+  const accountId =
     entry.accountId ??
-    `imported-${entry.access.slice(-12).replace(/[^a-zA-Z0-9]/g, '')}`
-  );
+    identity.id ??
+    `imported-${entry.access.slice(-12).replace(/[^a-zA-Z0-9]/g, '')}`;
+  return loginId(accountId, identity.subject);
 }
 
 function accountFromEntry(key: string, entry: OauthEntry): Account {
   const label = labelFromKey(key);
+  const identity = identify({ access_token: entry.access });
+  const id = idFor(entry);
   return {
-    id: idFor(entry),
-    email: label?.includes('@') ? label : undefined,
-    label: label && !label.includes('@') ? label : undefined,
+    id,
+    accountId: entry.accountId ?? identity.id,
+    email:
+      entry.email ??
+      identity.email ??
+      (label?.includes('@') ? label : undefined),
+    label: label && label !== id && !label.includes('@') ? label : undefined,
     refresh: entry.refresh,
     access: entry.access,
     expires: entry.expires,
@@ -42,7 +51,8 @@ function toEntry(account: Account): OauthEntry {
     refresh: account.refresh,
     access: account.access,
     expires: account.expires,
-    accountId: account.id,
+    accountId: account.accountId ?? account.id,
+    email: account.email,
     enterpriseUrl: account.enterpriseUrl,
   };
 }

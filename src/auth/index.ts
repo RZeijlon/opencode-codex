@@ -11,7 +11,8 @@ function toEntry(account: Account): OauthEntry {
     refresh: account.refresh,
     access: account.access,
     expires: account.expires,
-    accountId: account.id,
+    accountId: account.accountId ?? account.id,
+    email: account.email,
     enterpriseUrl: account.enterpriseUrl,
   };
 }
@@ -21,6 +22,7 @@ export function fingerprint(store: Store): string {
     active: store.active,
     accounts: store.accounts.map((account) => ({
       id: account.id,
+      accountId: account.accountId,
       email: account.email,
       access: account.access,
       refresh: account.refresh,
@@ -32,7 +34,7 @@ export function fingerprint(store: Store): string {
 
 /**
  * Normalize auth.json from its own OAuth entries:
- * - Keep one `openai/<email|id>` entry per Codex account.
+ * - Keep one `openai/<login-id>` entry per Codex login.
  * - Keep `openai` as a compatibility mirror for OpenCode's provider auth.
  */
 export async function sync(): Promise<void> {

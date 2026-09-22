@@ -11,7 +11,9 @@ export interface Usage {
 }
 
 export interface Account {
+  /** Unique login identity; Business users can share a ChatGPT account ID. */
   id: string;
+  accountId?: string;
   email?: string;
   label?: string;
   refresh: string;

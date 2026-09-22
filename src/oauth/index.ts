@@ -2,7 +2,7 @@ import * as accounts from '../accounts/index.js';
 import type { Account } from '../accounts/types.js';
 import * as callback from './callback.js';
 import * as device from './device.js';
-import { identify } from './jwt.js';
+import { identify, loginId } from './jwt.js';
 import * as paste from './paste.js';
 import { pkce, state } from './pkce.js';
 import { authorizeUrl, refresh as refreshTokens } from './tokens.js';
@@ -45,11 +45,13 @@ interface FailedResult {
 const SAFE_FAIL: FailedResult = { type: 'failed' };
 
 function tokensToAccount(tokens: TokenResponse, now = Date.now()): Account {
-  const { id, email } = identify(tokens);
+  const { id, email, subject } = identify(tokens);
+  const accountId =
+    id ??
+    `unknown-${tokens.access_token.slice(-12).replace(/[^a-zA-Z0-9]/g, '')}`;
   return {
-    id:
-      id ??
-      `unknown-${tokens.access_token.slice(-12).replace(/[^a-zA-Z0-9]/g, '')}`,
+    id: loginId(accountId, subject),
+    accountId,
     email,
     refresh: tokens.refresh_token,
     access: tokens.access_token,
@@ -66,7 +68,7 @@ async function persist(tokens: TokenResponse): Promise<SuccessResult> {
     refresh: tokens.refresh_token,
     access: tokens.access_token,
     expires: account.expires,
-    accountId: account.id,
+    accountId: account.accountId,
   };
 }
 
